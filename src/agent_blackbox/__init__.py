@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-__all__ = ["__version__"]
-
 
 def __getattr__(name: str) -> str:
     # Resolved lazily so that importing the package (as the latency-critical
