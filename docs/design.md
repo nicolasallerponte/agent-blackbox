@@ -165,13 +165,17 @@ Everything lives in `<project>/.agent-blackbox/` ([ADR-0001](adr/0001-shadow-git
 .agent-blackbox/
 ├── VERSION                       # storage format version ("1")
 ├── config.toml                   # optional user config (limits, excludes)
-├── shadow.git/                   # bare git repo, GIT_WORK_TREE = project root
+├── workspace.json                # cached workspace (root, git top level, prefix)
+├── shadow.git/                   # bare git repo; work tree = user repo top level or project root
 │   ├── info/exclude              # our excludes + a copy of the user's
+│   ├── info/attributes           # "* -text -filter -ident -working-tree-encoding"
 │   ├── index-<session>           # one private index per session
 │   └── refs/agent-blackbox/sessions/<session>   # chain of step commits
 ├── sessions/<session>/
 │   ├── steps.jsonl               # append-only step records
 │   ├── turns.jsonl               # append-only prompt records (redacted)
+│   ├── dropped.jsonl             # steps that could not take the lock in time
+│   ├── disabled                  # present when recording stopped (max_files)
 │   └── meta.json                 # adapter, project root, started/ended
 ├── lock                          # inter-process lock file
 └── logs/hook-errors.log          # rotating, capped
@@ -185,37 +189,55 @@ When the project is a git repository, `install` and the first recording add
 ### 4.1 Snapshots (shadow repo)
 
 A snapshot is the tree of the project root as git would see it, taken with
-plumbing only, under the lock:
+plumbing only, under the lock. When the project root is inside a user git
+repository, the shadow work tree is that repository's top level and every
+command runs from the project root with pathspec `.`: only the project root
+is captured, but ignore rules from parent directories still apply. Outside a
+git repository the work tree is the project root.
 
 ```
-GIT_DIR=.agent-blackbox/shadow.git GIT_WORK_TREE=<root> GIT_INDEX_FILE=…/index-<session>
-git add -A --ignore-errors -- .
+GIT_DIR=.agent-blackbox/shadow.git GIT_WORK_TREE=<toplevel> GIT_INDEX_FILE=…/index-<session>
+git ls-files -z --others --exclude-standard -- .       (size guard, see Limits)
+git add -A --ignore-errors -- . ':(exclude,literal)<oversized>'...
 git write-tree                         → T
 if T == tree(previous step): record step with changed=false, no commit
 git commit-tree T -p <prev> -F <msg>   → C      (msg = step record JSON)
 git update-ref refs/agent-blackbox/sessions/<s> C <prev>   (compare-and-swap)
 ```
 
-- The user's `.git` is never read or written; the user's `.gitignore` files
-  apply naturally because they live in the work tree. The user's
-  `info/exclude` is copied into ours at session start.
+- The user's `.git` is never written except for one line in
+  `info/exclude`; the user's `.gitignore` files apply naturally because they
+  live in the work tree. The user's `info/exclude` is copied into ours at
+  session start.
+- `info/attributes` unsets `text`, `filter`, `ident` and
+  `working-tree-encoding` for every path, so in-tree `.gitattributes` cannot
+  convert line endings or run clean filters (e.g. git-lfs): snapshots hold
+  the bytes on disk.
+- Inherited `GIT_*` variables (`GIT_DIR`, `GIT_INDEX_FILE`,
+  `GIT_CONFIG_PARAMETERS`, pathspec modes, …) are removed before running
+  git; only user-level config selection (`GIT_CONFIG_GLOBAL`, …) is kept.
 - Non-git projects work the same way. A built-in default exclude list
   (`node_modules/`, `.venv/`, `__pycache__/`, `.env*`, …) applies only when
   the project has no `.gitignore`.
 - Objects are shared by all sessions of the project, so unchanged files cost
   nothing (git deduplication). `doctor` reports `count-objects -vH`.
 - Git configuration used by the shadow repo is pinned per invocation
-  (`-c core.autocrlf=false -c core.safecrlf=false -c core.untrackedCache=true
-  -c gc.auto=0 -c commit.gpgSign=false`), so the user's global config cannot
-  change snapshot content or trigger signing prompts.
+  (`core.autocrlf=false`, `core.fsmonitor=false`, `core.hooksPath=/dev/null`,
+  `core.untrackedCache=true`, `gc.auto=0`, `commit.gpgSign=false`, …), so the
+  user's global config cannot change snapshot content, run programs or
+  trigger signing prompts. Shadow commits use a fixed identity and the
+  step's timestamp.
+- The workspace (git top level and prefix) is cached in `workspace.json`
+  and re-detected at every session start, which saves one git process per
+  hook call.
 
 **Limits** (all configurable in `config.toml`):
 
 | Limit | Default | Behaviour when exceeded |
 |---|---|---|
-| `max_file_size` | 10 MiB | Untracked-in-shadow files above it are added to a session-local exclude and listed in the step record (`skipped_large`). |
-| `max_files` | 100 000 | Recording is disabled for the session with one warning in `doctor`; the agent is unaffected. |
-| `snapshot_budget_ms` | 2 000 | If lock wait + snapshot exceeds it, the step is recorded as `dropped` (no tree). Bisect treats dropped steps as merged into the next one. |
+| `max_file_size` | 10 MiB | Files new to the snapshot above it are excluded with a literal pathspec and listed in the step record (`skipped_large`). A file captured while small stays captured if it grows (checking modified files too would double the scan cost of every snapshot). |
+| `max_files` | 100 000 | Recording stops for the session (`sessions/<s>/disabled`, reported by `doctor`); the agent is unaffected. |
+| `lock_timeout_s` | 2 s | If the project lock is not acquired in time, the step is appended to `sessions/<s>/dropped.jsonl` without a snapshot (kind `dropped`, flag `lock_timeout`). Bisect treats it as merged into the next snapshot. |
 | Ignored files | not captured | Documented; `include_ignored` globs opt specific paths back in. |
 
 Nested git repositories and submodules inside the project are recorded as
@@ -236,7 +258,8 @@ gitlinks only (their content is not captured) — known limitation.
 
 - `seq` is a per-session monotonically increasing step number assigned under
   the lock. Step 0 is the baseline (`kind: "baseline"`).
-- `kind` ∈ `baseline | tool | external | dropped | recovered`.
+- `kind` ∈ `baseline | tool | external | dropped`. Records rebuilt from
+  commit messages after a crash keep their kind and get flag `recovered`.
   `external` snapshots are taken at `UserPromptSubmit` and session resume, so
   edits the *user* made between turns are not blamed on the agent's next step.
 - `input` is redacted (§7) and large string fields (`content`,
@@ -383,7 +406,8 @@ run at `SessionStart` and lazily when the lock is taken:
 |---|---|---|
 | During `git add` / `write-tree` | Stale `index-<s>.lock`; loose unreferenced objects | Remove the index lock (we hold `flock`, so nobody else owns it); objects are garbage for `gc`. |
 | After `commit-tree`, before `update-ref` | Unreferenced commit | Nothing to do. |
-| After `update-ref`, before journal append | Ref head not in journal | Append a `recovered` record parsed from the commit message. |
+| After `update-ref`, before journal append | Ref head not in journal | Append the record parsed from each missing commit's message, flagged `recovered`; `tree`, `parent` and `seq` come from git and the journal, not the message. An unparsable message yields an `external` record flagged `unparsable_commit_message`. |
+| Ref deleted or moved back by hand | Ref missing or behind the journal | Point the ref back at the journal head. |
 | During journal append | Last line truncated (no `\n`) | Truncate to the last complete line; the ref-vs-journal check re-adds it. |
 | Corrupt index file | `git` error reading index | Delete the session index; next `add -A` rebuilds it (slower once). |
 
@@ -518,7 +542,12 @@ Human and `--json`:
 ## 10. Performance
 
 - Budget: hook p95 < 150 ms on ~5,000 files. Prototype: 46 ms p95
-  (research README).
+  (research README). The Phase 2 recorder measured in a fresh process
+  (Python 3.11, 4 vCPU): p50 93 ms, p95 111 ms; about 30 ms are imports and
+  about 55 ms are five git processes (`ls-files`, `add`, `write-tree`,
+  `commit-tree`, `update-ref`). Trimming `dataclasses`/`enum`/`typing`/`re`
+  from the hook path saves about 12 ms more and will be decided with the
+  hook benchmark in Phase 3.
 - The hook path imports only stdlib; a CI test fails if importing the hook
   module pulls in `typer`, `rich` or any third-party module
   (`python -X importtime` check).

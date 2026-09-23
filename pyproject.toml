@@ -87,6 +87,7 @@ ignore = [
   "TRY003",  # long messages in exceptions are fine
   "S603",    # subprocess without shell is our standard; shell=True is banned via S602/S604
   "S607",    # partial executable paths (git) are resolved via PATH on purpose
+  "TC003",   # stdlib imports used only in annotations need no TYPE_CHECKING guard
 ]
 
 [tool.ruff.lint.pydocstyle]
