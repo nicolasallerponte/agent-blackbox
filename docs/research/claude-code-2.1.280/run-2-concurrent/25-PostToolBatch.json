@@ -1,0 +1,25 @@
+{
+  "_observed_offset_s": 18.966,
+  "payload": {
+    "session_id": "baa8cf5f-3fda-455a-80f8-63a9461a800b",
+    "transcript_path": "/root/.claude/projects/-home-user-project/baa8cf5f-3fda-455a-80f8-63a9461a800b.jsonl",
+    "cwd": "/home/user/project",
+    "scratchpad_dir": "/tmp/claude-0/-home-user-project/baa8cf5f-3fda-455a-80f8-63a9461a800b/scratchpad",
+    "prompt_id": "b0d43d62-9e8b-4085-89ac-d7f44f15bd24",
+    "permission_mode": "acceptEdits",
+    "agent_id": "ad3ad0db0a5fdc404",
+    "agent_type": "general-purpose",
+    "hook_event_name": "PostToolBatch",
+    "tool_calls": [
+      {
+        "tool_name": "Bash",
+        "tool_input": {
+          "command": "sleep 4; echo bg > bg.txt",
+          "description": "Sleep for 4 seconds and write \"bg\" to bg.txt"
+        },
+        "tool_use_id": "toolu_01U8rmGCXVZy4yfU9B8X2GkH",
+        "tool_response": "(Bash completed with no output)"
+      }
+    ]
+  }
+}

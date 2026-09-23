@@ -1,0 +1,13 @@
+{
+  "_observed_offset_s": 0.761,
+  "payload": {
+    "session_id": "baa8cf5f-3fda-455a-80f8-63a9461a800b",
+    "transcript_path": "/root/.claude/projects/-home-user-project/baa8cf5f-3fda-455a-80f8-63a9461a800b.jsonl",
+    "cwd": "/home/user/project",
+    "scratchpad_dir": "/tmp/claude-0/-home-user-project/baa8cf5f-3fda-455a-80f8-63a9461a800b/scratchpad",
+    "prompt_id": "b0d43d62-9e8b-4085-89ac-d7f44f15bd24",
+    "permission_mode": "acceptEdits",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "Do exactly these steps, nothing else: (1) In ONE single message, issue THREE Bash tool calls in parallel: 'sleep 3; echo x > x.txt', 'sleep 3; echo y > y.txt', and 'ls'. (2) Use the Agent tool with subagent_type general-purpose, run_in_background true, prompt 'Run the bash command: sleep 4; echo bg > bg.txt . Then stop.' (3) Immediately after launching it, without waiting, use Write to create main.txt with content M. Then wait for the background agent to finish before replying done."
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "_observed_offset_s": 0.0,
+  "payload": {
+    "session_id": "e083b435-f411-4ab8-8502-0881daa5e641",
+    "transcript_path": "/root/.claude/projects/-home-user-project/e083b435-f411-4ab8-8502-0881daa5e641.jsonl",
+    "cwd": "/home/user/project",
+    "scratchpad_dir": "/tmp/claude-0/-home-user-project/e083b435-f411-4ab8-8502-0881daa5e641/scratchpad",
+    "hook_event_name": "SessionStart",
+    "source": "startup"
+  }
+}

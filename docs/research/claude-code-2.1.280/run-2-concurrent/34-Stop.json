@@ -1,0 +1,16 @@
+{
+  "_observed_offset_s": 22.764,
+  "payload": {
+    "session_id": "baa8cf5f-3fda-455a-80f8-63a9461a800b",
+    "transcript_path": "/root/.claude/projects/-home-user-project/baa8cf5f-3fda-455a-80f8-63a9461a800b.jsonl",
+    "cwd": "/home/user/project",
+    "scratchpad_dir": "/tmp/claude-0/-home-user-project/baa8cf5f-3fda-455a-80f8-63a9461a800b/scratchpad",
+    "prompt_id": "b0d43d62-9e8b-4085-89ac-d7f44f15bd24",
+    "permission_mode": "acceptEdits",
+    "hook_event_name": "Stop",
+    "stop_hook_active": false,
+    "last_assistant_message": "done",
+    "background_tasks": [],
+    "session_crons": []
+  }
+}
