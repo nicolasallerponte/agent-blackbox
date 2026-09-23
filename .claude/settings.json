@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(uv sync *)",
+      "Bash(uv lock *)",
+      "Bash(uv build *)",
+      "Bash(uv run pytest *)",
+      "Bash(uv run coverage *)",
+      "Bash(uv run ruff *)",
+      "Bash(uv run mypy *)",
+      "Bash(uv run lint-imports *)",
+      "Bash(uv run pre-commit run *)",
+      "Bash(uv run --group docs mkdocs build *)",
+      "Bash(uv run --group docs mkdocs serve *)",
+      "Bash(uv run agent-blackbox *)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git show *)"
+    ],
+    "deny": [
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(**/.envrc)",
+      "Bash(git push * main)",
+      "Bash(git push * main *)",
+      "Bash(git push * HEAD:main)",
+      "Bash(git push * *:main)",
+      "Bash(git push * refs/heads/main)",
+      "Bash(git push --force *)",
+      "Bash(git push -f *)"
+    ]
+  }
+}

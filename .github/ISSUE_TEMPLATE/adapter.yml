@@ -1,0 +1,38 @@
+name: New agent adapter
+description: Propose support for another coding agent (OpenCode, Aider, Codex CLI, ...).
+labels: ["type:feature", "area:adapters"]
+body:
+  - type: input
+    id: agent
+    attributes:
+      label: Agent
+      placeholder: Name, version and link
+    validations:
+      required: true
+  - type: textarea
+    id: events
+    attributes:
+      label: Event source
+      description: |
+        How can agent-blackbox observe each file-changing step? (hooks, plugin API,
+        wrapper, log tailing). Link the official documentation.
+    validations:
+      required: true
+  - type: textarea
+    id: attribution
+    attributes:
+      label: Attribution data
+      description: Which identifiers are available per step (session, user turn, sub-agent, tool name, tool input, timing)?
+    validations:
+      required: true
+  - type: textarea
+    id: concurrency
+    attributes:
+      label: Concurrency and failure behaviour
+      description: Can steps run in parallel? What happens to the agent if the hook fails or is slow?
+  - type: checkboxes
+    id: willing
+    attributes:
+      label: Contribution
+      options:
+        - label: I am willing to implement this adapter following the `add-adapter` guide.

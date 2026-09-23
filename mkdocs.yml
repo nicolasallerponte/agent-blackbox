@@ -1,0 +1,59 @@
+site_name: agent-blackbox
+site_description: A flight recorder for AI coding agents. Records every step of a session and bisects to the exact tool call that broke your tests.
+site_url: https://nicolasallerponte.github.io/agent-blackbox/
+repo_url: https://github.com/nicolasallerponte/agent-blackbox
+repo_name: nicolasallerponte/agent-blackbox
+edit_uri: edit/main/docs/
+copyright: Copyright © 2026 Nicolás Aller Ponte · Apache-2.0
+
+theme:
+  name: material
+  features:
+    - content.code.copy
+    - navigation.sections
+    - search.suggest
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.superfences
+  - pymdownx.highlight
+
+nav:
+  - Home: index.md
+  - Design: design.md
+  - Decisions:
+      - adr/README.md
+      - adr/0001-shadow-git-repository.md
+      - adr/0002-session-log-format.md
+      - adr/0003-concurrency-and-crash-safety.md
+      - adr/0004-language-and-cli-framework.md
+      - adr/0005-claude-code-hook-integration.md
+      - adr/0006-windows-support.md
+      - adr/0007-bisect-algorithm.md
+      - adr/0008-documentation-toolchain.md
+  - Research:
+      - research/claude-code-2.1.280/README.md
+
+not_in_nav: |
+  adr/template.md
+
+validation:
+  links:
+    not_found: warn
+    unrecognized_links: warn
+    absolute_links: info

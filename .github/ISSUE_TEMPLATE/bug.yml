@@ -1,0 +1,57 @@
+name: Bug report
+description: Something does not work as documented.
+labels: ["type:bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please check existing issues first.
+        **Remove secrets** from logs and payloads before posting.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. agent-blackbox install
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Output of `agent-blackbox doctor --json`
+      render: json
+  - type: input
+    id: version
+    attributes:
+      label: agent-blackbox version
+      placeholder: agent-blackbox --version
+    validations:
+      required: true
+  - type: input
+    id: agent
+    attributes:
+      label: Agent and version
+      placeholder: Claude Code 2.1.280
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options: [Linux, macOS, Windows (unsupported), Other]
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: For hook problems, include `.agent-blackbox/logs/hook-errors.log`.
+      render: text

@@ -1,0 +1,116 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions: {} # least privilege: each job declares what it needs
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  UV_FROZEN: "1"
+  FORCE_COLOR: "1"
+
+jobs:
+  lint:
+    name: Lint, types, architecture
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          enable-cache: true
+      - run: uv sync
+      - name: pre-commit (ruff, mypy, import-linter, actionlint, zizmor, hygiene)
+        run: uv run pre-commit run --all-files --show-diff-on-failure
+
+  test:
+    name: Test (${{ matrix.os }}, Python ${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          enable-cache: true
+          python-version: ${{ matrix.python }}
+      - run: uv sync
+      - name: Tests with coverage
+        run: uv run pytest --cov=agent_blackbox --cov-report=term --cov-report=xml
+      - name: Coverage gate for core (>= 90 %)
+        run: uv run coverage report --include='src/agent_blackbox/core/*' --fail-under=90
+
+  test-windows:
+    # Windows is not supported yet (docs/adr/0006-windows-support.md). The job
+    # runs so the gap stays visible, but it cannot fail the build.
+    name: Test (windows-latest, allowed to fail)
+    runs-on: windows-latest
+    permissions:
+      contents: read
+    timeout-minutes: 20
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          enable-cache: true
+          python-version: "3.12"
+      - run: uv sync
+      - run: uv run pytest
+
+  build:
+    name: Build distributions
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+      - run: uv build
+      - name: Check metadata
+        run: uvx twine check --strict dist/*
+      - name: Smoke-test the wheel in a clean environment
+        run: |
+          uv venv /tmp/smoke
+          uv pip install --python /tmp/smoke/bin/python dist/*.whl
+          /tmp/smoke/bin/agent-blackbox --version
+
+  ci-ok:
+    # Single required check for branch protection.
+    name: CI OK
+    if: always()
+    needs: [lint, test, build]
+    runs-on: ubuntu-latest
+    permissions: {}
+    timeout-minutes: 5
+    steps:
+      - name: All required jobs succeeded
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "Results: $RESULTS"
+          for r in $RESULTS; do [ "$r" = "success" ] || exit 1; done
