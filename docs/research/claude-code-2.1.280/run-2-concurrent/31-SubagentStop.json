@@ -1,0 +1,27 @@
+{
+  "_observed_offset_s": 20.313,
+  "payload": {
+    "session_id": "baa8cf5f-3fda-455a-80f8-63a9461a800b",
+    "transcript_path": "/root/.claude/projects/-home-user-project/baa8cf5f-3fda-455a-80f8-63a9461a800b.jsonl",
+    "cwd": "/home/user/project",
+    "scratchpad_dir": "/tmp/claude-0/-home-user-project/baa8cf5f-3fda-455a-80f8-63a9461a800b/scratchpad",
+    "prompt_id": "b0d43d62-9e8b-4085-89ac-d7f44f15bd24",
+    "permission_mode": "acceptEdits",
+    "agent_id": "ad3ad0db0a5fdc404",
+    "agent_type": "general-purpose",
+    "hook_event_name": "SubagentStop",
+    "stop_hook_active": false,
+    "agent_transcript_path": "/root/.claude/projects/-home-user-project/baa8cf5f-3fda-455a-80f8-63a9461a800b/subagents/agent-ad3ad0db0a5fdc404.jsonl",
+    "last_assistant_message": "Done. The command executed successfully:\n- Slept for 4 seconds\n- Created file `bg.txt` containing \"bg\"",
+    "background_tasks": [
+      {
+        "id": "ad3ad0db0a5fdc404",
+        "type": "subagent",
+        "status": "running",
+        "description": "Background task: create bg.txt",
+        "agent_type": "general-purpose"
+      }
+    ],
+    "session_crons": []
+  }
+}

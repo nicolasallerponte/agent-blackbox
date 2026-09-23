@@ -1,0 +1,82 @@
+{
+  "_observed_offset_s": 35.133,
+  "payload": {
+    "session_id": "e083b435-f411-4ab8-8502-0881daa5e641",
+    "transcript_path": "/root/.claude/projects/-home-user-project/e083b435-f411-4ab8-8502-0881daa5e641.jsonl",
+    "cwd": "/home/user/project",
+    "scratchpad_dir": "/tmp/claude-0/-home-user-project/e083b435-f411-4ab8-8502-0881daa5e641/scratchpad",
+    "prompt_id": "1bc0f0fd-02e0-477d-a0aa-68cd5b2ffe61",
+    "permission_mode": "acceptEdits",
+    "hook_event_name": "PostToolUse",
+    "tool_name": "Agent",
+    "tool_input": {
+      "description": "Write d.txt with content D",
+      "prompt": "Write the file d.txt with content D using the Write tool, then stop.",
+      "subagent_type": "general-purpose",
+      "run_in_background": false
+    },
+    "tool_response": {
+      "status": "completed",
+      "prompt": "Write the file d.txt with content D using the Write tool, then stop.",
+      "agentId": "a2884005c5630a9a9",
+      "agentType": "general-purpose",
+      "harnessNoteCount": 0,
+      "harnessTailCount": 0,
+      "harnessSectionHash": "c66036340fbd5efb",
+      "content": [
+        {
+          "type": "text",
+          "text": "Done. I've created the file d.txt with content \"D\" at `/home/user/project/d.txt`."
+        }
+      ],
+      "resolvedModel": "claude-haiku-4-5-20251001",
+      "totalDurationMs": 5541,
+      "totalTokens": 20743,
+      "totalToolUseCount": 1,
+      "usage": {
+        "output_tokens_details": {
+          "thinking_tokens": 31
+        },
+        "input_tokens": 8,
+        "cache_creation_input_tokens": 448,
+        "cache_read_input_tokens": 20178,
+        "output_tokens": 109,
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 448
+        },
+        "inference_geo": "not_available",
+        "iterations": [
+          {
+            "input_tokens": 8,
+            "output_tokens": 109,
+            "cache_read_input_tokens": 20178,
+            "cache_creation_input_tokens": 448,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 448,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "type": "message"
+          }
+        ],
+        "speed": "standard"
+      },
+      "toolStats": {
+        "readCount": 0,
+        "searchCount": 0,
+        "bashCount": 0,
+        "editFileCount": 1,
+        "linesAdded": 1,
+        "linesRemoved": 0,
+        "otherToolCount": 0
+      }
+    },
+    "tool_use_id": "toolu_01Jz73yo4ocsdMU9fUvKFeyh",
+    "duration_ms": 5542
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "_observed_offset_s": 12.437,
+  "payload": {
+    "session_id": "baa8cf5f-3fda-455a-80f8-63a9461a800b",
+    "transcript_path": "/root/.claude/projects/-home-user-project/baa8cf5f-3fda-455a-80f8-63a9461a800b.jsonl",
+    "cwd": "/home/user/project",
+    "scratchpad_dir": "/tmp/claude-0/-home-user-project/baa8cf5f-3fda-455a-80f8-63a9461a800b/scratchpad",
+    "prompt_id": "b0d43d62-9e8b-4085-89ac-d7f44f15bd24",
+    "permission_mode": "acceptEdits",
+    "hook_event_name": "PostToolUse",
+    "tool_name": "Agent",
+    "tool_input": {
+      "description": "Background task: create bg.txt",
+      "prompt": "Run the bash command: sleep 4; echo bg > bg.txt . Then stop.",
+      "subagent_type": "general-purpose",
+      "run_in_background": true
+    },
+    "tool_response": {
+      "isAsync": true,
+      "status": "async_launched",
+      "agentId": "ad3ad0db0a5fdc404",
+      "description": "Background task: create bg.txt",
+      "resolvedModel": "claude-haiku-4-5-20251001",
+      "prompt": "Run the bash command: sleep 4; echo bg > bg.txt . Then stop.",
+      "outputFile": "/tmp/claude-0/-home-user-project/baa8cf5f-3fda-455a-80f8-63a9461a800b/tasks/ad3ad0db0a5fdc404.output",
+      "canReadOutputFile": true
+    },
+    "tool_use_id": "toolu_01KoRRCS5ZqWoaMgarCHorji",
+    "duration_ms": 17
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "_observed_offset_s": 0.706,
+  "payload": {
+    "session_id": "e083b435-f411-4ab8-8502-0881daa5e641",
+    "transcript_path": "/root/.claude/projects/-home-user-project/e083b435-f411-4ab8-8502-0881daa5e641.jsonl",
+    "cwd": "/home/user/project",
+    "scratchpad_dir": "/tmp/claude-0/-home-user-project/e083b435-f411-4ab8-8502-0881daa5e641/scratchpad",
+    "prompt_id": "1bc0f0fd-02e0-477d-a0aa-68cd5b2ffe61",
+    "permission_mode": "acceptEdits",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "Do exactly these steps, nothing else: (1) In ONE message, call the Write tool twice in parallel: create a.txt with content 'A' and b.txt with content 'B'. (2) Use the Edit tool to change hi to hello in app.py. (3) Run the bash command: echo c > c.txt && sed -i s/hello/howdy/ app.py (4) Run the bash command: false (5) Use the Agent tool with subagent_type general-purpose, run_in_background false, and prompt 'Write the file d.txt with content D using the Write tool, then stop.' Then reply done."
+  }
+}
