@@ -126,25 +126,27 @@ agent's configuration files. The core sees only:
 
 ```python
 @dataclass(frozen=True)
-class StepEvent:            # something may have changed the workspace
+class StepEvent:  # something may have changed the workspace
     session_id: str
-    agent: AgentRef         # id + type; None for the main agent
-    turn_id: str | None     # adapter's notion of a user turn (prompt_id)
+    agent: AgentRef  # id + type; None for the main agent
+    turn_id: str | None  # adapter's notion of a user turn (prompt_id)
     tool: str
     tool_input: Mapping[str, object]
-    ok: bool                # tool succeeded
+    ok: bool  # tool succeeded
     started_at_ns: int | None
     ended_at_ns: int
 
+
 @dataclass(frozen=True)
-class TurnEvent:            # user submitted a prompt
+class TurnEvent:  # user submitted a prompt
     session_id: str
     turn_id: str
     prompt: str
-    synthetic: bool         # e.g. <task-notification>
+    synthetic: bool  # e.g. <task-notification>
+
 
 @dataclass(frozen=True)
-class SessionEvent:         # start / resume / end
+class SessionEvent:  # start / resume / end
     session_id: str
     kind: Literal["start", "resume", "end"]
 ```

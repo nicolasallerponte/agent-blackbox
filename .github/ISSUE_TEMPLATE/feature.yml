@@ -1,0 +1,29 @@
+name: Feature request
+description: Propose a new capability or an improvement.
+labels: ["type:feature"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What are you trying to do, and why is it hard today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: checkboxes
+    id: principles
+    attributes:
+      label: Project principles
+      description: agent-blackbox is deterministic, local-first and never blocks the agent.
+      options:
+        - label: This proposal needs no network access and no LLM to make decisions.
+          required: true

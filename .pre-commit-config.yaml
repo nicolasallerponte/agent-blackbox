@@ -1,0 +1,53 @@
+# Same checks as CI (.github/workflows/ci.yml). Revisions are pinned to commit
+# SHAs; update with `uvx pre-commit autoupdate --freeze`.
+default_install_hook_types: [pre-commit]
+exclude: ^docs/research/
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c # frozen: v6.0.0
+    hooks:
+      - id: check-added-large-files
+        args: [--maxkb=500]
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: check-yaml
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: trailing-whitespace
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: 2eeb5678de71a00c0902cbda7105d328432f72cb # frozen: v0.16.8
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: https://github.com/Mateusz-Grzelinski/actionlint-py
+    rev: 805f85e558841bf4d852335e036b33d2b26be1cc # frozen: v1.7.12.25
+    hooks:
+      - id: actionlint
+
+  - repo: https://github.com/zizmorcore/zizmor-pre-commit
+    rev: fa412071e4f5d44d44f9e365f4676f9df92456a2 # frozen: v1.30.1
+    hooks:
+      - id: zizmor
+        args: [--offline] # deterministic; online audits need GitHub API access
+
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy (strict)
+        entry: uv run --frozen mypy
+        language: system
+        types: [python]
+        pass_filenames: false
+      - id: import-linter
+        name: import-linter (architecture contracts)
+        entry: uv run --frozen lint-imports
+        language: system
+        types: [python]
+        pass_filenames: false

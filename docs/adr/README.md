@@ -13,3 +13,4 @@ use the next free number, and add a row below. Status values: `proposed`,
 | [0005](0005-claude-code-hook-integration.md) | Claude Code integration: synchronous exec-form command hooks on post-tool events | accepted |
 | [0006](0006-windows-support.md) | Defer native Windows support; run Windows CI as allowed-to-fail | accepted |
 | [0007](0007-bisect-algorithm.md) | Bisect as a pure search over distinct trees with git-compatible exit codes | accepted |
+| [0008](0008-documentation-toolchain.md) | Documentation toolchain: MkDocs 1.x + Material pinned below 2.0, re-evaluate before v0.1.0 | proposed |

@@ -1,0 +1,170 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agent-blackbox"
+version = "0.0.0"
+description = "A flight recorder for AI coding agents: records every step of a session and bisects to the exact tool call that broke your tests."
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+authors = [{ name = "Nicolás Aller Ponte" }]
+keywords = ["ai-agents", "claude-code", "coding-agents", "git-bisect", "debugging", "developer-tools"]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Operating System :: MacOS",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development :: Debuggers",
+  "Topic :: Software Development :: Testing",
+  "Typing :: Typed",
+]
+dependencies = [
+  "typer>=0.15",
+  "rich>=13.9",
+]
+
+[project.urls]
+Homepage = "https://github.com/nicolasallerponte/agent-blackbox"
+Documentation = "https://nicolasallerponte.github.io/agent-blackbox/"
+Repository = "https://github.com/nicolasallerponte/agent-blackbox"
+Issues = "https://github.com/nicolasallerponte/agent-blackbox/issues"
+Changelog = "https://github.com/nicolasallerponte/agent-blackbox/blob/main/CHANGELOG.md"
+
+[project.scripts]
+agent-blackbox = "agent_blackbox.cli.app:main"
+
+[dependency-groups]
+dev = [
+  "pytest>=8.3",
+  "pytest-cov>=6.0",
+  "pytest-socket>=0.7",
+  "hypothesis>=6.120",
+  "mypy>=1.15",
+  "ruff>=0.9",
+  "import-linter>=2.1",
+  "pre-commit>=4.0",
+]
+docs = [
+  "mkdocs-material>=9.6",
+  "mkdocs>=1.6,<2", # 2.0 drops plugins and Material support: docs/adr/0008-documentation-toolchain.md
+]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/", "tests/", "LICENSE", "README.md", "CHANGELOG.md"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agent_blackbox"]
+
+# --- ruff -------------------------------------------------------------------
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests", "scripts", "benchmarks"]
+extend-exclude = ["docs/research"]
+
+[tool.ruff.lint]
+select = [
+  "E", "W", "F", "I", "N", "D", "UP", "B", "A", "C4", "DTZ", "T10", "EM", "ISC",
+  "ICN", "LOG", "G", "PIE", "T20", "PT", "Q", "RSE", "RET", "SLF", "SIM", "TID",
+  "TC", "ARG", "PTH", "ERA", "PL", "TRY", "FLY", "PERF", "FURB", "RUF", "S", "BLE",
+  "FBT", "ASYNC",
+]
+ignore = [
+  "D105",    # magic methods need no docstring
+  "D107",    # __init__ documented on the class
+  "PLR0913", # argument count is a design decision, reviewed by humans
+  "TRY003",  # long messages in exceptions are fine
+  "S603",    # subprocess without shell is our standard; shell=True is banned via S602/S604
+  "S607",    # partial executable paths (git) are resolved via PATH on purpose
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"urllib.request".msg = "No network access: agent-blackbox is local-first (AGENTS.md)."
+"http.client".msg = "No network access: agent-blackbox is local-first (AGENTS.md)."
+"socket".msg = "No network access: agent-blackbox is local-first (AGENTS.md)."
+"requests".msg = "No network access: agent-blackbox is local-first (AGENTS.md)."
+"httpx".msg = "No network access: agent-blackbox is local-first (AGENTS.md)."
+"urllib3".msg = "No network access: agent-blackbox is local-first (AGENTS.md)."
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["D", "S101", "PLR2004", "SLF001", "FBT"]
+"benchmarks/**" = ["D", "T20", "S311"]
+
+# --- mypy -------------------------------------------------------------------
+
+[tool.mypy]
+strict = true
+python_version = "3.10"
+files = ["src", "tests", "scripts", ".claude/skills"]
+warn_unreachable = true
+enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
+
+# --- pytest / coverage ------------------------------------------------------
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+addopts = [
+  "-ra",
+  "--strict-markers",
+  "--strict-config",
+  "--disable-socket",
+  "--allow-unix-socket",
+]
+xfail_strict = true
+filterwarnings = ["error"]
+markers = [
+  "slow: long-running tests (deselect with '-m \"not slow\"')",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["agent_blackbox"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+exclude_also = [
+  "if TYPE_CHECKING:",
+  "raise NotImplementedError",
+  "@overload",
+  "\\.\\.\\.",
+]
+
+# --- import-linter ----------------------------------------------------------
+
+[tool.importlinter]
+root_package = "agent_blackbox"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "Layers: cli -> adapters -> core"
+type = "layers"
+layers = [
+  "agent_blackbox.cli",
+  "agent_blackbox.adapters",
+  "agent_blackbox.core",
+]
+
+[[tool.importlinter.contracts]]
+name = "core and adapters stay free of CLI dependencies (hook latency)"
+type = "forbidden"
+source_modules = ["agent_blackbox.core", "agent_blackbox.adapters"]
+forbidden_modules = ["typer", "rich", "click"]
