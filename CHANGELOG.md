@@ -12,3 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Design document and architecture decision records 0001–0008.
 - Project skeleton: package layout, quality tooling, CI/CD workflows,
   community files and agent tooling.
+- Core recording engine: shadow git repository per project, workspace
+  snapshots that never touch the user's git history, append-only session
+  journals, per-project locking, and automatic recovery from processes killed
+  mid-snapshot.
